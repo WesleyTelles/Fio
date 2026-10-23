@@ -1,0 +1,38 @@
+{
+  "name": "fio-pwa",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:db": "node --test tests/db/core.test.mjs",
+    "test:e2e": "playwright test",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^5.3.0",
+    "@preact/signals": "^2.11.3",
+    "@supabase/supabase-js": "^2.118.0",
+    "preact": "^11.0.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
+    "fake-indexeddb": "^6.2.6",
+    "jose": "^6.2.13",
+    "jsdom": "^29.1.1",
+    "pg": "^8.23.1",
+    "sharp": "^0.35.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.5"
+  }
+}
