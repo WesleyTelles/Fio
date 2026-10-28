@@ -28,6 +28,6 @@ export function Icon({ n, size = 22, sw = 1.8, color = 'currentColor', class: cl
 }
 
 /** Marca do assistente: ponto + traço lima (sem robô). */
-export function Mark({ size = 22, run = false }: { size?: number; run?: boolean }) {
-  return <svg class={run ? 'mark-run' : ''} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="3.4" fill="#D5FF40" /><rect x="12" y="10.3" width="9" height="3.4" rx="1.7" fill="#D5FF40" /></svg>;
+export function Mark({ size = 22, run = false, color = '#D5FF40' }: { size?: number; run?: boolean; color?: string }) {
+  return <svg class={run ? 'mark-run' : ''} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="3.4" fill={color} /><rect x="12" y="10.3" width="9" height="3.4" rx="1.7" fill={color} /></svg>;
 }
