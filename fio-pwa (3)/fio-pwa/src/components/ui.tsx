@@ -49,7 +49,7 @@ export function Nav() {
   const r = route.value === '/metas' ? '/orcamento' : route.value;
   return (
     <>
-      <button class="fab press" aria-label="Abrir assistente para registrar" onClick={() => navigate('/assistente')}><Mark size={26} /></button>
+      <button class="fab press" aria-label="Abrir assistente para registrar" onClick={() => navigate('/assistente')}><Mark size={28} color="#10110F" /></button>
       <nav class="nav" aria-label="Navegação principal">
         {NAV.map(([href, label, ic]) => (
           <a href={href} key={href} aria-current={r === href ? 'page' : undefined} aria-label={label} class="press"
