@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { Icon, Mark, P, type IconName } from './Icon';
+import { Icon, P, type IconName } from './Icon';
+import { Mascot } from './Mascot';
+import { mascotMood } from '../lib/mascot';
 import { navigate, route, sheet, toastS, syncUi, pendingCount, online, outbox, type SyncUi } from '../lib/state';
 
 export const iconFor = (name?: string): IconName => ((name && name in P ? name : 'dots') as IconName);
@@ -49,7 +51,9 @@ export function Nav() {
   const r = route.value === '/metas' ? '/orcamento' : route.value;
   return (
     <>
-      <button class="fab press" aria-label="Abrir assistente para registrar" onClick={() => navigate('/assistente')}><Mark size={28} color="#10110F" /></button>
+      <button class="fab press" aria-label="Abrir assistente financeiro" title="Assistente financeiro" data-testid="fab" onClick={() => navigate('/assistente')}>
+        <Mascot size={60} mood={mascotMood.value} testId="fab-mascot" />
+      </button>
       <nav class="nav" aria-label="Navegação principal">
         {NAV.map(([href, label, ic]) => (
           <a href={href} key={href} aria-current={r === href ? 'page' : undefined} aria-label={label} class="press"

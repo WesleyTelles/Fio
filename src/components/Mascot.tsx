@@ -15,7 +15,7 @@ export function Mascot({ size = 64, mood = 'idle', quiet = false, testId }: { si
       <span class="mascot-halo" />
       <span class="mascot-body">
         <span class="mascot-disc">
-          <img class="mascot-img" src="/mascot/assistente-192.png" width={size} height={size} alt="" decoding="async" draggable={false} />
+          <img class="mascot-img" src="/assistente-192.png" width={size} height={size} alt="" decoding="async" draggable={false} />
         </span>
         <span class="mascot-ring" />
         <span class="mascot-arc" />
