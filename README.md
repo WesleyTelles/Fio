@@ -67,6 +67,9 @@ Veja `.env.example`. Resumo:
 | `ALLOWED_ORIGIN` | secrets | origem exata do app (CORS da função) |
 | `AI_TIMEOUT_MS` | secrets | padrão 8000 |
 
+## Mascote da assistente
+O acesso ao assistente é a mascote oficial (arte do Gemini fornecida pelo dono): estados, motion, limites e arquivos complementares em [`docs/MASCOT.md`](docs/MASCOT.md).
+
 ## Rodando localmente
 
 ```bash
