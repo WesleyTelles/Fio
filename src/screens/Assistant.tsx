@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { signal } from '@preact/signals';
 import { Icon, Mark } from '../components/Icon';
+import { Mascot } from '../components/Mascot';
+import { beginBusy, flashMascot, mascotMood } from '../lib/mascot';
 import { api } from '../lib/api';
 import { AppError, mapError } from '../lib/errors';
 import { aiKeyToId, budgetV, catById, catName, categories, createTransaction, expenseCats, incomeCats, navigate, online, session, sheet, snap, sumMonthV, sumWeekV, todayS } from '../lib/state';
@@ -86,7 +88,7 @@ export function Assistant() {
 
   const send = async (raw: string) => {
     const text = raw.trim(); if (!text || busy || mode === 'disabled') return;
-    setInput(''); setBusy(true);
+    setInput(''); setBusy(true); const endBusy = beginBusy();
     const toSend = rebuild(text);
     push({ id: uid(), role: 'user', text }, { id: uid(), role: 'ai', kind: 'proc' });
     try {
@@ -98,8 +100,8 @@ export function Assistant() {
       if (err.kind === 'disabled') { aiMode.value = 'disabled'; replaceProc({ id: uid(), role: 'ai', kind: 'text', text: 'O assistente de IA está desativado no momento. Você pode registrar manualmente — tudo continua funcionando.', manual: true }); }
       else if (err.kind === 'network') replaceProc({ id: uid(), role: 'ai', kind: 'text', text: 'O assistente precisa de internet. Registre manualmente: sem conexão, o lançamento fica guardado aqui como pendente até sincronizar.', manual: true });
       else if (err.kind === 'auth') replaceProc({ id: uid(), role: 'ai', kind: 'text', text: 'Sua sessão expirou. Entre novamente para continuar.' });
-      else replaceProc({ id: uid(), role: 'ai', kind: 'text', text: err.message || 'O assistente não conseguiu responder agora. Tente de novo ou registre manualmente.', manual: true });
-    } finally { setBusy(false); }
+      else { flashMascot('oops'); replaceProc({ id: uid(), role: 'ai', kind: 'text', text: err.message || 'O assistente não conseguiu responder agora. Tente de novo ou registre manualmente.', manual: true }); }
+    } finally { setBusy(false); endBusy(); }
   };
 
   useEffect(() => { const s = assistantSeed.value; if (s) { assistantSeed.value = null; void send(s); } }, []);
@@ -108,7 +110,8 @@ export function Assistant() {
     const d = m.draft; if (d.status !== 'open') return;
     if (!d.category_id) return patchDraft(m.id, { error: 'Escolha uma categoria antes de confirmar.' });
     patchDraft(m.id, { status: 'busy', error: undefined });
-    const r = await createTransaction({ type: d.type, amount: d.amount, description: d.description, category_id: d.category_id, occurred_on: d.date, source: 'ai', ai_meta: { mode: aiMode.value === 'ai' ? 'ai' : 'demo' } }, d.key);
+    const endBusy = beginBusy();
+    const r = await createTransaction({ type: d.type, amount: d.amount, description: d.description, category_id: d.category_id, occurred_on: d.date, source: 'ai', ai_meta: { mode: aiMode.value === 'ai' ? 'ai' : 'demo' } }, d.key).finally(endBusy);
     if (r.rejected) return patchDraft(m.id, { status: 'open', error: r.rejected.message });  // mantém a proposta para tentar de novo
     patchDraft(m.id, { status: 'done', outcome: r.synced ? 'synced' : 'pending', error: undefined });
   };
@@ -130,7 +133,7 @@ export function Assistant() {
     <main class="screen nonav" style="display:flex;flex-direction:column;padding-bottom:0;height:100dvh">
       <header style="display:flex;align-items:center;gap:8px;padding-bottom:10px">
         <button class="press ibtn" onClick={() => navigate('/')} aria-label="Voltar" style="margin-left:-10px"><Icon n="back" size={22} sw={2} /></button>
-        <Mark size={22} run={busy} /><h1 style="font-size:18px;font-weight:600;flex:1">Assistente</h1>
+        <span class="mascot-land"><Mascot size={36} quiet mood={mode === 'disabled' ? 'oops' : mascotMood.value} testId="assistant-mascot" /></span><h1 style="font-size:18px;font-weight:600;flex:1;margin-left:6px">Assistente</h1>
         {mode !== 'unknown' && <span class={`tag ${mode === 'ai' ? '' : 'neutral'}`} data-testid="ai-mode">{mode === 'ai' ? 'IA' : mode === 'demo' ? 'Modo demonstração' : 'Desativado'}</span>}
       </header>
       {mode === 'demo' && <div class="banner" style="margin-bottom:8px" role="note"><Icon n="info" size={18} /><span>Modo demonstração: a interpretação usa regras locais, não inteligência artificial. Você sempre confirma antes de registrar.</span></div>}
