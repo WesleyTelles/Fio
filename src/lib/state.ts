@@ -4,6 +4,7 @@ import { signal, computed, effect } from '@preact/signals';
 import { api } from './api';
 import { kv } from './idb';
 import { Outbox } from './outbox';
+import { flashMascot } from './mascot';
 import { supabase } from './supabase';
 import { AppError, mapError } from './errors';
 import { applyPending, applyPendingBudget } from '../domain/summary';
@@ -153,12 +154,13 @@ export async function createTransaction(payload: import('../domain/types').TxPay
   const op = await outbox.enqueue(payload, key);
   await outbox.sync();
   const cur = outbox.ops.value.find((o) => o.id === op.id);
-  if (!cur) return { synced: true, opId: op.id };
+  if (!cur) { flashMascot('happy'); return { synced: true, opId: op.id }; }   // saiu da fila = o servidor confirmou
   if (cur.status === 'rejected') {
     await outbox.discard(op.id);                      // devolve o controle ao formulário, sem deixar lixo na fila
+    flashMascot('oops');
     return { synced: false, opId: op.id, rejected: new AppError('validation', 'rejected', cur.error ?? 'Lançamento recusado.') };
   }
-  return { synced: false, opId: op.id };
+  return { synced: false, opId: op.id };              // pendente (offline/falha): a mascote NÃO celebra
 }
 
 // ---------------------------------------------------------------- rede e ciclo de vida
