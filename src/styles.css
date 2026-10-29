@@ -74,7 +74,9 @@ select.input{appearance:none;background-image:linear-gradient(45deg,transparent 
 .nav a[aria-current=page]{background:var(--lime);color:var(--black);padding:0 18px}
 .nav a:not([aria-current=page]) span{display:none}
 .nav a:not([aria-current=page]){flex:1}
-.fab{position:fixed;bottom:calc(100px + var(--safe-b));right:max(16px,calc(50% - 224px));z-index:12;width:56px;height:56px;border-radius:50%;background:var(--lime);border:0;box-shadow:0 0 0 4px var(--black),0 8px 24px rgba(213,255,64,.18);display:flex;align-items:center;justify-content:center}
+.fab{position:fixed;bottom:calc(96px + var(--safe-b));right:max(16px,calc(50% - 224px));z-index:12;width:64px;height:64px;border-radius:50%;background:none;border:0;padding:0;display:flex;align-items:center;justify-content:center}
+.fab:focus-visible{outline:2px solid var(--lime);outline-offset:5px;border-radius:50%}
+.fab.press:active:not(:disabled){transform:scale(.93)}
 
 /* sheet */
 .backdrop{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);animation:fade 200ms ease both;display:flex;align-items:flex-end;justify-content:center}
@@ -116,3 +118,61 @@ select.input{appearance:none;background-image:linear-gradient(45deg,transparent 
 .chart-area{animation:fade 600ms ease 150ms both}
 @keyframes drawLine{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.chart-line{animation:none;stroke-dashoffset:0}.chart-area{animation:none}}
+
+/* ===== mascote da assistente =====
+   Regras: só transform/opacity; uma animação por elemento; mood decide qual conjunto vale (oops > happy > busy > idle). */
+.mascot{--ms:64px;--ring:var(--lime);position:relative;display:inline-block;width:var(--ms);height:var(--ms);flex:none;pointer-events:none}
+.mascot-halo{position:absolute;inset:-9px;border-radius:50%;background:radial-gradient(closest-side,rgba(213,255,64,.30),rgba(213,255,64,0) 72%);opacity:.5}
+.mascot-body{position:absolute;inset:0;border-radius:50%}
+.mascot-disc{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 28%,#262a1c,var(--s0) 70%);box-shadow:0 6px 16px rgba(0,0,0,.55)}
+.mascot-img{display:block;width:100%;height:100%;object-fit:cover;transform-origin:50% 88%;user-select:none;-webkit-user-drag:none}
+.mascot-ring{position:absolute;inset:-3px;border-radius:50%;border:2px solid var(--ring);opacity:.95;transition:border-color 240ms ease,opacity 240ms ease}
+.mascot-arc{position:absolute;inset:-3px;border-radius:50%;opacity:0;background:conic-gradient(var(--lime) 0 26%,transparent 26% 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));transition:opacity 200ms ease}
+.mascot-badge{position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-radius:50%;background:var(--lime);border:2px solid var(--black);display:flex;align-items:center;justify-content:center;transition:background-color 200ms ease}
+.mascot[data-mood=busy] .mascot-badge{opacity:0}
+
+/* A) repouso: presença, não atenção. Cada movimento em uma camada, com ciclos diferentes (nunca juntos) */
+.mascot[data-mood=idle]{animation:mFloat 6.5s ease-in-out infinite}
+.mascot[data-mood=idle] .mascot-body{animation:mBreath 7.5s ease-in-out 1.2s infinite}
+.mascot[data-mood=idle] .mascot-img{animation:mTilt 19s ease-in-out 6s infinite}
+.mascot[data-mood=idle] .mascot-halo{animation:mHalo 5.5s ease-in-out infinite}
+/* D) processando: pequeno movimento de atenção + arco girando (somente enquanto há trabalho real) */
+.mascot[data-mood=busy]{animation:mLean 1.8s ease-in-out infinite}
+.mascot[data-mood=busy] .mascot-ring{border-color:var(--s3)}
+.mascot[data-mood=busy] .mascot-arc{opacity:1;animation:mSpin 1.1s linear infinite}
+.mascot[data-mood=busy] .mascot-halo{opacity:.75}
+/* E) confirmado pelo servidor: aceno curto + selo de check */
+.mascot[data-mood=happy]{animation:mNod 700ms var(--ease) 1 both}
+.mascot[data-mood=happy] .mascot-halo{animation:mGlow 1400ms ease-out 1 both}
+.mascot[data-mood=happy] .mascot-badge{animation:mPop 260ms var(--ease) both}
+/* F) erro/indisponível: neutro e calmo (anel cinza, halo apagado, sem tremor) */
+.mascot[data-mood=oops]{--ring:var(--gray3);animation:mSettle 520ms var(--ease) 1 both}
+.mascot[data-mood=oops] .mascot-halo{opacity:0}
+.mascot[data-mood=oops] .mascot-badge{background:var(--gray2);animation:mPop 260ms var(--ease) both}
+/* C) assistente aberto: sem movimento de repouso competindo com a leitura */
+.mascot[data-quiet][data-mood=idle],.mascot[data-quiet][data-mood=idle] .mascot-body,.mascot[data-quiet][data-mood=idle] .mascot-img,.mascot[data-quiet][data-mood=idle] .mascot-halo{animation:none}
+.mascot[data-quiet][data-mood=idle] .mascot-halo{opacity:.3}
+.mascot[data-quiet] .mascot-badge{display:none}
+.mascot-land{display:inline-flex;animation:mLand 280ms var(--ease) both}
+
+@keyframes mFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes mBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@keyframes mTilt{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-2.4deg)}95%{transform:rotate(1.4deg)}}
+@keyframes mHalo{0%,100%{opacity:.34}50%{opacity:.62}}
+@keyframes mLean{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.035)}}
+@keyframes mSpin{to{transform:rotate(360deg)}}
+@keyframes mNod{0%{transform:translateY(0) scale(1)}30%{transform:translateY(2px) scale(.97)}65%{transform:translateY(-5px) scale(1.05)}100%{transform:translateY(0) scale(1)}}
+@keyframes mGlow{0%{opacity:.9}100%{opacity:.5}}
+@keyframes mPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes mSettle{0%{transform:translateY(0) scale(1)}40%{transform:translateY(1px) scale(.985)}100%{transform:translateY(0) scale(1)}}
+@keyframes mLand{from{opacity:0;transform:translateY(10px) scale(.7)}to{opacity:1;transform:none}}
+
+/* aba oculta: pausa tudo; aparelho modesto: remove só o movimento de repouso (reações e processamento continuam) */
+html[data-hidden] .mascot,html[data-hidden] .mascot *{animation-play-state:paused !important}
+html[data-lite] .mascot[data-mood=idle],html[data-lite] .mascot[data-mood=idle] .mascot-body,html[data-lite] .mascot[data-mood=idle] .mascot-img{animation:none}
+/* movimento reduzido: sem deslocamento/escala/rotação; estados seguem legíveis por cor, anel e selo */
+@media (prefers-reduced-motion:reduce){
+  .mascot,.mascot-body,.mascot-img,.mascot-halo,.mascot-badge,.mascot-land{animation:none !important}
+  .mascot[data-mood=busy] .mascot-arc{animation:none;opacity:1;transform:rotate(40deg)}
+  .mascot[data-mood=happy] .mascot-halo{opacity:.7}
+}
