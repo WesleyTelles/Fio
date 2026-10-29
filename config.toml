@@ -1,0 +1,5 @@
+# Configuração mínima para o Supabase CLI (db push / functions deploy). NÃO foi exercitada contra um projeto real nesta sessão.
+project_id = "fio"
+
+[functions.interpret]
+verify_jwt = true
